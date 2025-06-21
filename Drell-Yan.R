@@ -5,8 +5,6 @@
 ## response matrix to the real data from the Drell-Yan events
 ##
 source("utils.R")
-source("cde/cde.est.R")
-source("cde/bandwidth/cde.bandwidths.R")
 
 ## Read jet data ---------------------------------------------------------------
 jet_clean = read.csv("jet_clean.csv")
