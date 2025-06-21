@@ -9,3 +9,5 @@ The repository includes the following scripts:
 * `Drell-Yan.R`: Estimates the response matrix for Drell–Yan events.
 
 * `demo.ipynb`: Demonstrates the unfolding procedure using the estimated response matrices. This script reproduces the main results presented in the paper.
+
+* `utils.R`: Uitility functions used for estimating the response matrices.
