@@ -4,10 +4,10 @@ This repository contains code for estimating response matrices and performing th
 ## Overview
 The repository includes the following scripts:
 
-* `simulation.R`: Estimates the response matrix for the inclusive jet transverse momentum spectrum.
+* `simulation_jets.R`: Estimates the response matrix for the inclusive jet transverse momentum spectrum.
 
 * `Drell-Yan.R`: Estimates the response matrix for Drell–Yan events.
 
 * `demo.ipynb`: Demonstrates the unfolding procedure using the estimated response matrices. This script reproduces the main results presented in the paper.
 
-* `utils.R`: Uitility functions used for estimating the response matrices.
+* `utils.R`: Utility functions used for estimating the response matrices.
