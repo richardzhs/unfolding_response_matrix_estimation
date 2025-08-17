@@ -12,6 +12,6 @@ The repository includes the following scripts:
 
 * `utils.R`: Utility functions used for estimating the response matrices.
 
-* `cde.bandwidths.R`: Wrapper for bandwidth selection functions from [hdrcde] (https://github.com/robjhyndman/hdrcde), applied to kernel and local-linear conditional density estimation.
+* `cde.bandwidths.R`: Wrapper for bandwidth selection functions from [hdrcde](https://github.com/robjhyndman/hdrcde), applied to kernel and local-linear conditional density estimation.
 
 * `data.zip`: Contains simulated data as well as real data for Drell-Yan events.
