@@ -2,12 +2,12 @@
 ## Application to jet transverse momentum spectrum in Drell-Yan events + Jets
 ##
 ## This R file contains the codes for applying the cde methods for estimating the
-## response matrix to the real data from the Drell-Yan events
+## response matrix to the jet transverse momentum spectrum in Drell-Yan event.
 ##
 source("utils.R")
 
 ## Read jet data ---------------------------------------------------------------
-jet_clean = read.csv("jet_clean.csv")
+jet_clean = read.csv("data/Drell-Yan/jet_clean.csv")
 # for reproducibility
 set.seed(100)
 mc_sample <- sample(1:nrow(jet_clean),100000,replace = FALSE)
@@ -77,4 +77,4 @@ p4 <- visualize(K4, xbins, ybins, limits = limits, title = "local linear cde")
 pnaive <- visualize(Knaive, xbins, ybins, limits = limits, title = "histogram estimate")
 pnaive_full <- visualize(Knaive_full, xbins, ybins, limits = limits, title = "histogram estimate (full sample)")
 
-
+p1

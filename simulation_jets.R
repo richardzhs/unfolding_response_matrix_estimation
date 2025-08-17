@@ -2,7 +2,7 @@
 ## Response Matrix Estimation for Simulated Jet pT.
 ##
 ## This R file contains the codes for applying the cde methods for estimating the
-## response matrix to the simulated jet pT.
+## response matrix to the simulated inclusive jet transverse momentum spectrum.
 ##
 source("utils.R")
 
@@ -57,7 +57,7 @@ k <- function(x,y) {
 
 
 ## generate MC data -------------------------------------------------------------
-dat_mc = generateData(100000, f1, lb, ub, C1, C2, C3)
+dat_mc = generateData(100000, f0, lb, ub, C1, C2, C3)
 
 
 ## Estimate conditional densities and response matrices ------------------------
@@ -66,7 +66,7 @@ cde.out1 = cde_ls(dat_mc$x, dat_mc$y, xmargin, ymargin, rescale = TRUE)
 # global kernel
 cde.out2 = cde(x = dat_mc$x, y = dat_mc$y, x.margin = xmargin, y.margin = ymargin, rescale = TRUE)
 # local kernel
-cde.out3 = cde_local_x(dat_mc$x, dat_mc$y, xmargin, ymargin, d1 = 1, d2 = 1/100,
+cde.out3 = cde_local_x(dat_mc$x, dat_mc$y, xmargin, ymargin, d1 = 1, d2 = 1/400,
                        rescale = TRUE, parallel = FALSE)
 # local linear
 cde.out4 = cde(x = dat_mc$x, y = dat_mc$y, x.margin = xmargin, y.margin = ymargin, 
@@ -76,7 +76,7 @@ cde.out4 = cde(x = dat_mc$x, y = dat_mc$y, x.margin = xmargin, y.margin = ymargi
 f1 <- density(x = dat_mc$x, n = length(xmargin), from = xmargin[1], to = xmargin[length(xmargin)])$y
 
 
-# estimated response matrices
+# estimated response matrices 
 K1 <- estimate_K(k = t(cde.out1$z), x = cde.out1$x, y = cde.out1$y, f = f1, 
                  xbins = xbins, ybins = ybins)
 K2 <- estimate_K(k = t(cde.out2$z), x = cde.out2$x, y = cde.out2$y, f = f1, 
@@ -106,13 +106,16 @@ y <- generateDiscreteData(lambda, K)[[2]]
 
 #write.csv(lambda, file = "data/jet_pt/normal_kernel/true_means/x.csv", row.names = FALSE)
 #write.csv(mu, file = "data/jet_pt/normal_kernel/smeared_means/y.csv", row.names = FALSE)
-#write.csv(y, file = "data/jet_pt/normal_kernel/smeared_histograms/y1.csv", row.names = FALSE)
+#write.csv(y, file = "data/jet_pt/normal_kernel/smeared_histograms/y.csv", row.names = FALSE)
 
 
 ## Visualize the estimated response matrices -----------------------------------
 limits = c(-0.05,0.7)
+ptrue <- visualize(K, xbins, ybins, limits = limits, title = "true response matrix")
 p1 <- visualize(K1, xbins, ybins, limits = limits, title = "location-scale")
 p2 <- visualize(K2, xbins, ybins, limits = limits, title = "kernel cde")
 p3 <- visualize(K3, xbins, ybins, limits = limits, title = "local kernel cde")
 p4 <- visualize(K4, xbins, ybins, limits = limits, title = "local linear cde")
 pnaive <- visualize(Knaive, xbins, ybins, limits = limits, title = "histogram estimate")
+
+p1

@@ -16,6 +16,7 @@ library(parallel)
 library(doParallel)
 library(grid)
 require(gridExtra)
+source("cde.bandwidths.R")
 
 
 
@@ -190,33 +191,6 @@ visualize <- function(K, xbins=NULL, ybins=NULL, limits = NULL, xlab="true pT", 
   ggplotly(p, tooltip="all")
   return(p)
 }
-
-
-#' Plot multiple 2d graphs in one plot
-#' 
-#' @param data a list of data to plot
-#' @param xlim,ylim limits of the x-axis and yaxis
-#' @param type type of plots to plot (default is points "p")
-#' @param title title of the plot
-#' @param legend title of the legend
-#' @param xlab,ylab texts on the x-axis and y-axis
-#' 
-#' 
-plot_multiple <- function(data, xlim=NULL, ylim=NULL, type="p", title="",
-                          legend="", xlab="", ylab="") {
-  for (i in 1:length(data)) {
-    plot(data[[i]][[1]], data[[i]][[2]], xlim = xlim, ylim = ylim, 
-         xlab = "", ylab = "", type = type, col = i)
-    par(new=TRUE)
-  }
-  title(main = title, 
-        xlab = xlab, ylab = ylab)
-  legend(x = "topleft",
-         legend = legend,
-         col = 1:length(data), 
-         lwd = 2)
-}
-
 
 
 ################################################################################
@@ -548,6 +522,7 @@ cde <- function(x, y, deg=0, link="identity", a, b, mean=NULL,
 }
 
 
+
 Kernel <- function(y,y0,b,type="epanech")
 {
   if(type=="epanech")
@@ -579,21 +554,17 @@ print.cde <- function(x, ...)
 # Conditional density estimation assuming location scale model
 cde_ls <- function(x, y, xgrid, ygrid, rescale=TRUE) {
   cde <- matrix(nrow = length(xgrid), ncol = length(ygrid))
-  #mu <- npreg(txdat = x, tydat = y, exdat = xgrid, residuals = TRUE)
+
   m1 <- smooth.spline(x, y)
   mu <- predict(m1, x=x)$y
   mu.eval <- predict(m1, x=xgrid)$y
-  #m1 <- loess(y~x, data = data.frame(x,y), deg=1)
-  #mu <- m1$fitted
-  #mu.eval <- predict(m1, newdata = data.frame(x=xgrid))
+
   eps <- y - mu
-  #sigma2 <- npreg(txdat = x, tydat = eps^2, exdat = xgrid)
+
   m2 <- smooth.spline(x, eps^2)
   sigma2 <- predict(m2, x)$y
   sigma2.eval <- predict(m2, xgrid)$y
-  #m2 <- loess(eps2~x, data = data.frame(x,eps2=eps^2), deg=1)
-  #sigma2 <- m2$fitted
-  #sigma2.eval <- predict(m2, newdata = data.frame(x=xgrid))
+
   # evaluation points for the density estimates of epsilon
   eeps <- numeric(length(xgrid)*length(ygrid))
   k = 1
@@ -630,25 +601,6 @@ cde_ls <- function(x, y, xgrid, ygrid, rescale=TRUE) {
   return(structure(list(x=xgrid, y=ygrid, z=cde), class="cde"))
 }
 
-#' compute kernel conditional density estimate with varying bandwidths depending
-#' on x
-#' 
-#' @param x,y data points (x and y should have same length)
-#' @param xgrid,ygrid grid of points along x-axis and y-axis to compute the cde
-#' @param xbw pairs of bandwidths along x (should be a matrix of size length(xgrid) x 2)
-#' @param rescale whether to rescale the density estimate to integrate to 1
-#' 
-#' @return a list of xgrid, ygrid, and matrix of density estimates
-#' 
-cde_xbw <- function(x, y, xgrid, ygrid, xbw, rescale=TRUE) {
-  z <- matrix(nrow = length(xgrid), ncol = length(ygrid))
-  for (i in 1:nrow(z)) {
-    z[i,] <- cde(x = x, y = y, x.margin = xgrid[i], y.margin = ygrid, 
-                       a = xbw[i,1], b = xbw[i,2], rescale = rescale)$z
-    cat(xgrid[i]," ")
-  }
-  return(structure(list(x=xgrid, y=ygrid, z=z), class="cde"))
-}
 
 #' compute kernel conditional density estimate where only local points (neighborhood
 #' of x) are used for estimation
@@ -826,37 +778,6 @@ compute_K <- function(k, f, xbins, ybins) {
       } else {
         K[i,j] = numerator / denominator
       }
-    }
-  }
-  return(K)
-}
-
-#' Compute the true response matrix given the normal kernel function. It uses the
-#' histogram estimate but with very large sample size to approximate the truth
-#' 
-#' @param C1,C2,C3 parameter for the variance of the normal kernel
-#' @param delta parameter for the mean of the normal kernel (default 0)
-#' @param f the true particle-level distribution
-#' @param lb,ub lower bound and upper bound of the true particle-level distribution
-#' @param n sample size (default 100000; if greater than 100000, it will break into
-#' sub-sample of each size 100000)
-#' @param xbins,ybins bins on the x and y space
-#' 
-#' 
-#' @return the true response matrix K
-compute_true_K <- function(C1, C2, C3, delta=0, f, n=100000, xbins, ybins) {
-  K <- matrix(0, nrow=length(ybins)-1, ncol=length(xbins)-1)
-  m <- n %/% 100000
-  cat("m=",m,"\n")
-  if (m == 0) {
-    dat <- generateData(n, f, lb, ub, C1, C2, C3, delta)
-    K <- estimate_K_naive(dat$x, dat$y, xbins, ybins)
-    return(K)
-  } else{
-    for (i in 1:(m+1)) {
-      dat <- generateData(100000, f, lb, ub, C1, C2, C3, delta)
-      K <- K + 1/(m+1)*estimate_K_naive(dat$x, dat$y, xbins, ybins)
-      cat(i, " ")
     }
   }
   return(K)
